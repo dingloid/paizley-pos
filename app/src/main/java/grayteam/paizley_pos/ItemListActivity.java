@@ -1,7 +1,5 @@
 package grayteam.paizley_pos;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +13,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
-import grayteam.paizley_pos.dummy.DummyContent;
+import grayteam.paizley_pos.dummy.NavigationContent;
+import grayteam.paizley_pos.fragments.MenuItemFragment;
+import grayteam.paizley_pos.fragments.OpenOrdersFragment;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class ItemListActivity extends AppCompatActivity {
      * device.
      */
     private boolean mTwoPane;
-
+    String TAG = "ItemListActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,16 +67,19 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(DummyContent.ITEMS));
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(NavigationContent.ITEMS));
     }
 
     public class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
-        private final List<DummyContent.DummyItem> mValues;
+        private final List<NavigationContent.NavItem> mValues;
 
-        public SimpleItemRecyclerViewAdapter(List<DummyContent.DummyItem> items) {
+        public SimpleItemRecyclerViewAdapter(List<NavigationContent.NavItem> items) {
             mValues = items;
+            mValues.clear();
+            mValues.add(new NavigationContent.NavItem("1", "Menu Items", "z"));
+            mValues.add(new NavigationContent.NavItem("2", "Menu Items", "z"));
         }
 
         @Override
@@ -95,21 +98,30 @@ public class ItemListActivity extends AppCompatActivity {
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mTwoPane) {
-                        Bundle arguments = new Bundle();
-                        arguments.putString(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
-                        ItemDetailFragment fragment = new ItemDetailFragment();
-                        fragment.setArguments(arguments);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.item_detail_container, fragment)
-                                .commit();
-                    } else {
-                        Context context = v.getContext();
-                        Intent intent = new Intent(context, ItemDetailActivity.class);
-                        intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
 
-                        context.startActivity(intent);
+                    Bundle arguments = new Bundle();
+                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                    switch (holder.mItem.id) {
+                        case "1":
+                            MenuItemFragment fragment = new MenuItemFragment();
+                            fragment.setArguments(arguments);
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.item_detail_container, fragment)
+                                    .commit();
+                            break;
+                        case "2":
+                            OpenOrdersFragment fragment1 = new OpenOrdersFragment();
+                            fragment1.setArguments(arguments);
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.item_detail_container, fragment1)
+                                    .commit();
+                            break;
+
+
                     }
+
+
+
                 }
             });
         }
@@ -123,7 +135,7 @@ public class ItemListActivity extends AppCompatActivity {
             public final View mView;
             public final TextView mIdView;
             public final TextView mContentView;
-            public DummyContent.DummyItem mItem;
+            public NavigationContent.NavItem mItem;
 
             public ViewHolder(View view) {
                 super(view);
